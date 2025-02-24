@@ -1,0 +1,18 @@
+{
+    "files.associations": {
+        "*.css": "tailwindcss"
+    },
+    "editor.quickSuggestions": {
+        "strings": "on"
+    },
+    "tailwindCSS.emmetCompletions": true,
+    "editor.inlineSuggest.enabled": true,
+    "typescript.validate.enable": true,
+    "typescript.suggestionActions.enabled": true,
+    "typescript.tsserver.experimental.enableProjectDiagnostics": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit",
+        "source.fixAll.eslint": "always",
+        "eslint.validate": "always"
+    },
+}
