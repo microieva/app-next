@@ -1,24 +1,23 @@
 "use client"
 
-import { Footer } from "@/components/footer";
-import { Header } from "@/components/header";
-import { Main } from "@/components/main";
-import { SessionProvider } from "next-auth/react";
+import { View } from "@/components/view";
+import { useSession } from "next-auth/react";
+import { ReactNode } from "react";
 
-
-export default function Home() {
-  return (
-    <SessionProvider>
-      <div className="grid grid-rows-[auto_1fr_auto] items-center justify-items-center min-h-screen font-[family-name:var(--font-geist-sans)]">
-        <div className="row-span-1 h-16 w-full">
-          <Header />
-        </div>
-        <Main />
-        <Footer />
-      </div>
-    </SessionProvider>
-  );
+interface MainProps {
+  children: ReactNode;
 }
+
+export default function Main({children}: MainProps) {
+  const { data: session } = useSession();
+  
+  return (
+    <div >
+      { session ? <>{children} </> : <View/>}    
+    </div>
+  );
+};
+
 
 {/* <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start"> */}
   {/* <Image

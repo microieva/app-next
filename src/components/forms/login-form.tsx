@@ -19,15 +19,15 @@ export const LoginForm = ({ handleClose }: LoginFormProps)  => {
         setError("");
         try {
             const res = await signIn("credentials", {
-              email,
-              password,
+              email: "test@email.com",
+              password: "demo",
               redirect: false,
-            });
+            }, {callbackUrl:'/dashboard'});
       
             if (res?.error) {
               setError("Invalid email or password.");
             } else {
-              router.push("/"); 
+              router.push("/dashboard"); 
               handleClose();   
             }
       
@@ -37,7 +37,7 @@ export const LoginForm = ({ handleClose }: LoginFormProps)  => {
     };
     
     return (
-        <form className="space-y-4" onSubmit={handleSubmit} >
+        <form className="space-y-4 w-2/3" onSubmit={handleSubmit} >
             <input
                 type="email"
                 placeholder="Email"

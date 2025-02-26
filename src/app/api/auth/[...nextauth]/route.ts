@@ -7,9 +7,6 @@ import FacebookProvider from "next-auth/providers/facebook";
 import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 
-// import EmailProvider from "next-auth/providers/email"
-// import AppleProvider from "next-auth/providers/apple"
-
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options
 const handler = NextAuth({
@@ -59,7 +56,7 @@ const handler = NextAuth({
         
           if (!passwordMatch) {
             console.log("Invalid password");
-            return null; // Return null if password is incorrect (401)
+            return null; 
           }
         
           return user;
@@ -141,6 +138,21 @@ const handler = NextAuth({
     async signIn({ user }) {
       console.log("Sign-in user:", user);
       return true;
+    },
+
+    async redirect({ url, baseUrl }) {
+       if (url.startsWith("/")) return`${baseUrl}${url}`; return baseUrl },
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.email = user.email;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      session.user.id = token.id as string;
+      session.user.email = token.email as string;
+      return session;
     },
    // async signIn({ user, account, profile, email, credentials }) { return true },
     // async redirect({ url, baseUrl }) { return baseUrl },

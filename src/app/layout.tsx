@@ -1,6 +1,11 @@
+
+import { Footer } from "@/components/footer";
+import { Header } from "@/components/header";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Main from "./page";
+import { Providers } from "./providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,7 +32,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+         <Providers>
+          <div className="grid grid-rows-[auto_1fr_auto] items-center justify-items-center min-h-screen font-[family-name:var(--font-geist-sans)]">
+            <div className="row-span-1 h-16 w-full">
+              <Header />
+            </div>
+            <Main>{children}</Main>
+            <Footer />
+          </div>
+        </Providers>
       </body>
     </html>
   );
