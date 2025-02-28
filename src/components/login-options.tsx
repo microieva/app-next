@@ -5,7 +5,11 @@ import { useRouter } from "next/navigation";
 import { FaFacebook, FaGithub, FaGoogle } from "react-icons/fa";
 
 
-export const LoginOptions = () => {
+interface Props {
+  handleClose: () => void;
+}
+
+export const LoginOptions = ({handleClose}:Props) => {
   const router = useRouter();
 
   const handleLogin = async (provider:string) => {
@@ -13,6 +17,9 @@ export const LoginOptions = () => {
 
     if (result?.ok) {
       router.push("/dashboard");
+      handleClose();
+    } else {
+      console.error('Login error: ', result?.error)
     }
   };
 
@@ -22,7 +29,7 @@ export const LoginOptions = () => {
       onClick={()=> handleLogin("google")}
       className="button-login-option"
     >
-      <FaGoogle className="h-6 w-6 text-gray-500 hover:text-white " />
+      <FaGoogle className="h-6 w-6 text-gray-500 hover:text-white" />
       <p>Log in with Google</p>
     </button>
     <button

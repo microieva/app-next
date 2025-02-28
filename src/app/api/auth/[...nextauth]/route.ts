@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import NextAuth from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth";
 //import Auth0Provider from "next-auth/providers/auth0"
 import CredentialsProvider from "next-auth/providers/credentials";
 import FacebookProvider from "next-auth/providers/facebook";
@@ -9,7 +9,7 @@ import GoogleProvider from "next-auth/providers/google";
 
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options
-const handler = NextAuth({
+export const authOptions: NextAuthOptions = {
   // https://next-auth.js.org/configuration/providers
   providers: [
     // EmailProvider({
@@ -52,7 +52,11 @@ const handler = NextAuth({
             return null;
           }
         
-          const passwordMatch = await bcrypt.compare(credentials.password, user.password);
+          let passwordMatch:boolean = true;
+
+          if (user.password) {
+            passwordMatch = await bcrypt.compare(credentials.password, user.password);
+          }
         
           if (!passwordMatch) {
             console.log("Invalid password");
@@ -142,15 +146,18 @@ const handler = NextAuth({
 
     async redirect({ url, baseUrl }) {
        if (url.startsWith("/")) return`${baseUrl}${url}`; return baseUrl },
+
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.name = user.firstName +" "+ user.lastName;
         token.email = user.email;
       }
       return token;
     },
     async session({ session, token }) {
       session.user.id = token.id as string;
+      session.user.name = token.name as string;
       session.user.email = token.email as string;
       return session;
     },
@@ -166,5 +173,6 @@ const handler = NextAuth({
 
   // Enable debug messages in the console if you are having problems
   debug: false,
-});
+};
+const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };

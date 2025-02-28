@@ -13,7 +13,7 @@ export default function Main({children}: MainProps) {
   
   return (
     <div >
-      { session ? <>{children} </> : <View/>}    
+      { session ? <> {children} </> : <View/>}    
     </div>
   );
 };

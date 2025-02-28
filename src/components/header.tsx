@@ -1,18 +1,44 @@
 'use client'
 
+import { Avatar, Dropdown } from "flowbite-react";
 import { signOut, useSession } from "next-auth/react";
-import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Dialog } from "./dialog";
 import { LoginForm } from "./forms/login-form";
+import { Loading } from "./loading";
 import { LoginOptions } from "./login-options";
+import ThemeToggle from "./theme-toggle";
 
 export const Header = () => {
     const [isOpen, setIsOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState("");
     const { data: session } = useSession();
-    const router = useRouter();
     const pathName = usePathname();
-    const isDashboard = pathName === "/dashboard"; 
+    let initials:string = "";
+
+    if (session && session.user.name) {
+        initials = session.user.name
+            .split(" ")  
+            .map((word) => word.charAt(0).toUpperCase()) 
+            .join("");  
+
+    }
+
+
+    const navItems = [
+        { href: "/dashboard", label: "Dashboard" },
+        { href: "/calendar", label: "Calendar" },
+        { href: "/plans", label: "Plans" },
+      ];
+
+    const logOut = () => {
+        setIsLoading(true);
+        signOut({ callbackUrl: '/', redirect:true })
+            .catch((error) => setError(error))
+    }
     
     return (
         <>
@@ -24,19 +50,47 @@ export const Header = () => {
                 </> 
                 :
                 <>
-                     <button onClick={() => router.push('dashboard')} className={isDashboard ? 'text-white':''}>Dashboard</button>
-                     <button onClick={() => router.push('account')}>Account</button>
-                     <button onClick={() => router.push('calendar')}>Calendar</button>
-                     <button onClick={() => router.push('plans')}>Plans</button>
-                     <button className="button-logout" onClick={() => signOut({ callbackUrl: '/', redirect:true })}>Log Out</button>
+                     {navItems.map(({ href, label }) => (
+                        <Link
+                            key={href}
+                            href={href}
+                            className={`px-4 py-3 transition-colors ${
+                                pathName === href ? "header-nav-button" : "text-gray-500 hover:text-white"
+                            }`}
+                        >
+                            {label}
+                        </Link>
+                    ))}
+                    <div className="button-logout">
+                        <Dropdown
+                            label={<Avatar alt="User settings" placeholderInitials={initials as string}  rounded />}
+                            arrowIcon={false}
+                            inline
+                            >
+                            <Dropdown.Header>
+                                <span className="block text-sm">{session.user.name}</span>
+                                <span className="block truncate text-sm font-medium">{session.user.email}</span>
+                            </Dropdown.Header>
+                            <div className="py-4 flex justify-center">
+                                <ThemeToggle></ThemeToggle>
+                            </div>
+                            <Dropdown.Divider/>
+                            <Dropdown.Item><Link href="/account">Account</Link></Dropdown.Item>
+                            <Dropdown.Divider />
+                            <Dropdown.Item  onClick={() => logOut()}>Sign out</Dropdown.Item>
+                        </Dropdown>
+
+                    </div>
                 </>
                 }
             </header>
 
             <Dialog isOpen={isOpen} onClose={() => setIsOpen(false)}>
-                <LoginOptions />
+                <LoginOptions handleClose={() => setIsOpen(false)}/>
                 <LoginForm handleClose={() => setIsOpen(false)} />
             </Dialog>
+
+            {isLoading ? <Loading /> : null}
         </>
     )
 }

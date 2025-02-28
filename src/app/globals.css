@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -9,7 +10,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #0d0d0d;
     --foreground: #ededed;
   }
 }
@@ -22,7 +23,7 @@ body {
 
 @layer base {
   .text-primary {
-    @apply font-sans font-bold text-white tracking-wider;
+    @apply font-sans font-bold text-white tracking-wider text-sm;
   }
   input, textarea {
     @apply w-full text-primary;
@@ -62,10 +63,10 @@ body {
     @apply text-gray-400 hover:text-white py-2 mt-4 rounded-md;
   }
   .glass-effect {
-    @apply bg-gray-900 bg-opacity-30 backdrop-blur-md p-6 rounded-lg;
+    @apply bg-gray-900 bg-opacity-30 backdrop-blur-md p-2 rounded-lg;
   }
   .button-logout {
-    @apply absolute top-6 -right-96 p-1 rounded-md border border-gray-700 px-4;
+    @apply absolute top-2 -right-96 p-1 rounded-full border-gray-700 px-4;
   }
   .button-login-option {
     @apply w-full flex flex-row justify-center my-4 h-14 border border-gray-700 rounded-md py-4 px-8 bg-[#07080a] hover:bg-[#1c212b];
@@ -74,7 +75,10 @@ body {
     }
   }
   .header-auth {
-    @apply glass-effect relative w-1/2 m-6 mx-auto rounded-full border border-white/50 flex justify-between;
+    @apply glass-effect relative w-1/2 m-6 mx-auto rounded-full border border-gray-700/50 flex justify-between;
+    .header-nav-button {
+      @apply text-white rounded-full border border-gray-700 bg-[#162030cc];
+    }
   }
   .header-default {
     @apply w-4/5 m-6 mx-auto flex justify-between border-b border-white/50 py-6;
