@@ -10,14 +10,12 @@ export const Dialog = ({ isOpen, onClose, children }: DialogProps) => {
   if (!isOpen) return null; 
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-      <div className="bg-black p-6 rounded-lg shadow-lg text-white flex flex-col border border-gray-700/50">
-        <div className="flex flex-row w-auto">
-
+    <div className="fixed inset-0 flex items-center justify-center">
+      <div className=" glass-effect p-6 rounded-lg shadow-lg text-white flex flex-col border border-gray-700/50">
+        <div className="flex flex-row w-auto ">
         { children }
         </div>
         <button
-          style={{textIndent: '-2rem'}}
           className="dialog-button"
           onClick={onClose}
         >

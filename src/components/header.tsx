@@ -1,10 +1,10 @@
 'use client'
 
 import { Avatar, Dropdown } from "flowbite-react";
-import { signOut, useSession } from "next-auth/react";
+import { getSession, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dialog } from "./dialog";
 import { LoginForm } from "./forms/login-form";
 import { Loading } from "./loading";
@@ -26,7 +26,9 @@ export const Header = () => {
             .join("");  
 
     }
-
+    useEffect(() => {
+        getSession();
+    }, []);
 
     const navItems = [
         { href: "/dashboard", label: "Dashboard" },
@@ -34,10 +36,15 @@ export const Header = () => {
         { href: "/plans", label: "Plans" },
       ];
 
-    const logOut = () => {
+    const logOut = async() => {
         setIsLoading(true);
-        signOut({ callbackUrl: '/', redirect:true })
-            .catch((error) => setError(error))
+
+        try {
+            await fetch("/api/auth/logout", { method: "POST" });
+            await signOut({ callbackUrl: "/" });
+        } catch (error) {
+            console.error("Logout failed:", error);
+        }
     }
     
     return (

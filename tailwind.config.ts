@@ -5,7 +5,7 @@ export default {
   darkMode: "class", 
   content: [
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
     flowbite.content(),
   ],
   theme: {
@@ -16,6 +16,9 @@ export default {
       },
     },
   },
+  safelist: [
+    'hover:text-white'
+  ],
   plugins: [
     require('@tailwindcss/forms'),
     flowbite.plugin(),

@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/prisma";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 import NextAuth, { NextAuthOptions } from "next-auth";
 //import Auth0Provider from "next-auth/providers/auth0"
+
 import CredentialsProvider from "next-auth/providers/credentials";
 import FacebookProvider from "next-auth/providers/facebook";
 import GithubProvider from "next-auth/providers/github";
@@ -10,6 +12,7 @@ import GoogleProvider from "next-auth/providers/google";
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options
 export const authOptions: NextAuthOptions = {
+  adapter: PrismaAdapter(prisma),
   // https://next-auth.js.org/configuration/providers
   providers: [
     // EmailProvider({
@@ -81,6 +84,13 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_ID || "",
       clientSecret: process.env.GOOGLE_SECRET || "",
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code",
+        },
+      },
     }),
   ],
   // Database optional. MySQL, Maria DB, Postgres and MongoDB are supported.
@@ -90,7 +100,7 @@ export const authOptions: NextAuthOptions = {
   // * You must install an appropriate node_module for your database
   // * The Email provider requires a database (OAuth providers do not)
   //database: process.env.DB_URL || "",
-  secret: process.env.JWT_SECRET,
+  secret: process.env.NEXTAUTH_SECRET,
 
   session: {
     // Use JSON Web Tokens for session instead of database sessions.
@@ -134,25 +144,61 @@ export const authOptions: NextAuthOptions = {
     // verifyRequest: '/auth/verify-request', // Used for check email page
     // newUser: null // If set, new users will be directed here on first sign in
   },
-
-  // Callbacks are asynchronous functions you can use to control what happens
-  // when an action is performed.
-  // https://next-auth.js.org/configuration/callbacks
   callbacks: {
-    async signIn({ user }) {
-      console.log("Sign-in user:", user);
+    async signIn({ user, account, profile, email }) {
+
+      if (account?.provider === "google") {
+        const googleProfile = profile as { email_verified?: boolean; email?: string, given_name?: string, family_name?: string }; 
+
+    // ✅ Reject sign-in if the email is not verified
+    if (!googleProfile.email_verified) {
+      throw new Error("Google account must have a verified email.");
+    }
+
+    // ✅ Ensure email is defined before proceeding
+    if (!user.email) {
+      throw new Error("No email provided by Google.");
+    }
+
+    // ✅ Check if user already exists
+    let existingUser = await prisma.user.findUnique({
+      where: { email: user.email },
+    });
+
+    // ✅ Create user if they don't exist
+      if (!existingUser) {
+        try {
+          existingUser = await prisma.user.create({
+            data: {
+              email: user.email,
+              firstName: googleProfile?.given_name as string,
+              lastName: googleProfile?.family_name as string,
+              roleId:"0f108788-7ec5-4195-8eec-b811897c8a80"
+              // image: user.image ?? null,
+            },
+          });
+
+        } catch (error) {
+          console.error(error);
+          throw new Error("Unable to create user "+error);
+        }
+      }
+      }
       return true;
     },
-
     async redirect({ url, baseUrl }) {
        if (url.startsWith("/")) return`${baseUrl}${url}`; return baseUrl },
 
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
         token.name = user.firstName +" "+ user.lastName;
         token.email = user.email;
       }
+      if (trigger === "update") {
+        token.email = session.email;
+        token.name = session.name;
+    }
       return token;
     },
     async session({ session, token }) {
@@ -160,18 +206,13 @@ export const authOptions: NextAuthOptions = {
       session.user.name = token.name as string;
       session.user.email = token.email as string;
       return session;
-    },
-   // async signIn({ user, account, profile, email, credentials }) { return true },
-    // async redirect({ url, baseUrl }) { return baseUrl },
-    // async session({ session, token, user }) { return session },
-    // async jwt({ token, user, account, profile, isNewUser }) { return token }
+    }
   },
-
   // Events are useful for logging
   // https://next-auth.js.org/configuration/events
   events: {},
 
-  // Enable debug messages in the console if you are having problems
+  // Enables debug messages in the console
   debug: false,
 };
 const handler = NextAuth(authOptions);

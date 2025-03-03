@@ -21,25 +21,30 @@ export const LoginForm = ({ handleClose }: LoginFormProps)  => {
         setError("");
         setIsLoading(true); 
 
-        try {
-          const res = await signIn("credentials", {
-            email:"admin@email.com",
-            password:"demo",
-            redirect: false, 
-            callbackUrl: "/dashboard",
-          });
-    
-          if (res?.error) {
-            console.error("Login failed:", res.error);
-            setError("Invalid email or password."); // TO DO use error in UI
-          } else {
-            handleClose(); 
-            router.push("/dashboard"); 
+        if (password && email) {
+          try {
+            const res = await signIn("credentials", {
+              email,
+              password,
+              redirect: false, 
+              callbackUrl: "/dashboard",
+            });
+      
+            if (res?.error) {
+              setError("Invalid email or password"); 
+            } else {
+              handleClose(); 
+              router.push("/dashboard"); 
+            }
+          } catch (error) {
+            console.error("An unexpected error occurred:", error);
+          } finally {
+            setIsLoading(false); 
           }
-        } catch (error) {
-          console.error("An unexpected error occurred:", error);
-        } finally {
-          setIsLoading(false); 
+
+        } else {
+          setError("Please fill in all fields");
+          setIsLoading(false);
         }
     };
 
@@ -47,23 +52,24 @@ export const LoginForm = ({ handleClose }: LoginFormProps)  => {
       return (
         <Loading />
       )
-    } else {
+    }
       return (
           <form className="space-y-4 w-2/3" onSubmit={handleSubmit} >
               <input
                   type="email"
                   placeholder="Email"
                   className="form-input"
-                  value=""
+                  value={email}
                   onChange={(e) => setEmail(e.target.value)}
               />
               <input
                   type="password"
                   placeholder="Password"
                   className="form-input"
-                  value=""
+                  value={password}
                   onChange={(e) => setPassword(e.target.value)}
               />
+              {error && <p className="text-red-500">{error}</p>}
               <button
                   type="submit"
                   className="form-button-submit"
@@ -72,7 +78,5 @@ export const LoginForm = ({ handleClose }: LoginFormProps)  => {
               </button>
           </form>
       )
-
-    }
     
 }

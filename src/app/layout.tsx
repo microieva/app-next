@@ -38,7 +38,7 @@ export default function RootLayout({
       >
          <Providers>
           <div className="grid grid-rows-[auto_1fr_auto] items-center justify-items-center min-h-screen font-[family-name:var(--font-geist-sans)]">
-            <div className="row-span-1 h-16 w-full">
+            <div className="row-span-1 h-16 w-full fixed top-0">
               <Header />
             </div>
             <Main>{children}</Main>
