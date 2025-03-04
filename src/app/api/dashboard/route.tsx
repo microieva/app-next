@@ -1,4 +1,4 @@
-import { getAccountRouteUser, getServerAuthSession } from "@/lib/auth";
+import { getDashboardRouteUser, getServerAuthSession } from "@/lib/auth";
 import { NextResponse } from "next/server";
 
 export async function GET() {
@@ -8,8 +8,7 @@ export async function GET() {
     if (!session || !session.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    const me = await getAccountRouteUser();
+    const me = await getDashboardRouteUser();
 
     if (!me) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });

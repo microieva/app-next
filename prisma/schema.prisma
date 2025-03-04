@@ -30,6 +30,7 @@ model Role {
 model Category {
   id        String  @id @default(uuid())
   name String @unique
+  description String?
   createdAt DateTime @default(now())
   updatedAt DateTime? @updatedAt()
   image String? 

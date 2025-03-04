@@ -149,23 +149,20 @@ export const authOptions: NextAuthOptions = {
 
       if (account?.provider === "google") {
         const googleProfile = profile as { email_verified?: boolean; email?: string, given_name?: string, family_name?: string }; 
+        console.log('googleProfile', googleProfile);
+        console.log('profile', profile, 'account: ', account);
+      /*if (!googleProfile.email_verified) {
+        throw new Error("Google account must have a verified email.");
+      }
 
-    // ✅ Reject sign-in if the email is not verified
-    if (!googleProfile.email_verified) {
-      throw new Error("Google account must have a verified email.");
-    }
+      if (!user.email) {
+        throw new Error("No email provided by Google.");
+      }
 
-    // ✅ Ensure email is defined before proceeding
-    if (!user.email) {
-      throw new Error("No email provided by Google.");
-    }
+      let existingUser = await prisma.user.findUnique({
+        where: { email: user.email },
+      });
 
-    // ✅ Check if user already exists
-    let existingUser = await prisma.user.findUnique({
-      where: { email: user.email },
-    });
-
-    // ✅ Create user if they don't exist
       if (!existingUser) {
         try {
           existingUser = await prisma.user.create({
@@ -182,7 +179,7 @@ export const authOptions: NextAuthOptions = {
           console.error(error);
           throw new Error("Unable to create user "+error);
         }
-      }
+      }*/
       }
       return true;
     },

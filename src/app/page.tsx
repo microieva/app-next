@@ -12,7 +12,7 @@ export default function Main({children}: MainProps) {
   const { data: session } = useSession();
   
   return (
-    <div className="mb-32 mt-40">
+    <div className="mb-32 mt-40 w-3/4 mx-auto">
       { session ? <> {children} </> : <View/>}    
     </div>
   );

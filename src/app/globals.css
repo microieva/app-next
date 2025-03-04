@@ -101,6 +101,15 @@ body {
   .wrapper-with-border {
     @apply bg-[#1c212b] rounded-md px-32 py-4;
   }
+  .alert {
+    @apply dark:text-[darkgrey] text-gray-800 space-y-8;
+  }
+  .table-row {
+    @apply bg-white border-b dark:border-gray-600/50 dark:bg-[#101116] text-gray-600;
+  }
+  .table-header {
+    @apply bg-gray-50 dark:bg-[#171920];
+  }
 }
 
 @layer utilities {

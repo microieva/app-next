@@ -32,7 +32,6 @@ export const UserForm = ({ me, handleClose}:Props) => {
         await update({email: response.data.user.email, name: response.data.user.firstName+" "+response.data.user.lastName});  
         handleClose();  
       }
-      //await getSession();
     } catch (error) {
       setError(error as string);
     } finally {
@@ -53,7 +52,6 @@ export const UserForm = ({ me, handleClose}:Props) => {
                   name="firstName" 
                   className="form-input" 
                   placeholder="Add first name" 
-                  //defaultValue={me.firstName}
                   value={userInput.firstName}
                   onChange={(e)=>handleChange(e)}
                   />
@@ -65,10 +63,8 @@ export const UserForm = ({ me, handleClose}:Props) => {
                   name="lastName" 
                   className="form-input" 
                   placeholder="Add last name" 
-                  //defaultValue={me.lastName}
                   value={userInput.lastName}
                   onChange={handleChange}
-                  //onChange={(e)=> setUserInput({lastName: e.target.value})}
                   />
             </div>
             <div className="w-80 my-2">
@@ -78,7 +74,6 @@ export const UserForm = ({ me, handleClose}:Props) => {
                   name="email" 
                   className="form-input" 
                   placeholder="Add email" 
-                  //defaultValue={me.email}
                   value={userInput.email}
                   onChange={handleChange}
                   />
