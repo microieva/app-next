@@ -1,8 +1,8 @@
 "use client"
 
+import { User } from "@/types/types";
 import axios from "axios";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Dialog } from "../dialog";
 import { Loading } from "../loading";
@@ -14,10 +14,10 @@ interface Props {
 
 export const UserForm = ({ me, handleClose}:Props) => {
   const { update } = useSession();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [userInput, setUserInput] = useState<any>({firstName:me.firstName, lastName: me.lastName, email: me.email});
-  const route = useRouter();
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [userInput, setUserInput] = useState<Partial<User>>({firstName:me.firstName, lastName: me.lastName, email: me.email});
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUserInput({ ...userInput, [e.target.name]: e.target.value });
   };
@@ -26,23 +26,27 @@ export const UserForm = ({ me, handleClose}:Props) => {
     e.preventDefault();
     setLoading(true);
 
-    try {
-      const response = await axios.post("/api/account/update", {userInput});
-      if (response.status === 200) {
-        await update({email: response.data.user.email, name: response.data.user.firstName+" "+response.data.user.lastName});  
-        handleClose();  
-      }
-    } catch (error) {
-      setError(error as string);
-    } finally {
-      setLoading(false);
-    }
+    const request = axios.post('/api/account/update', {userInput});
+    request
+      .then(async (response) => {
+        if (response.status === 200) {
+          await update({email: response.data.user.email, name: response.data.user.firstName+" "+response.data.user.lastName});  
+          handleClose(); 
+        } 
+      })
+      .catch((error) => {
+        setError(error.response.data.error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });  
+    
   };
   
   return (
     <>
       {loading && <Loading/>}
-      <Dialog isOpen={Boolean(error)} onClose={()=>{}}><p>{error}</p></Dialog>
+      <Dialog isOpen={Boolean(error)} onClose={()=>{setError(null)}}><p>{error}</p></Dialog>
       <form action="#">
         <div className="grid gap-4 mb-4 sm:grid-cols-2 px-16 py-12">
             <div className="w-80 my-2">

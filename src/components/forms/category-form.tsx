@@ -9,32 +9,38 @@ import { Loading } from "../loading";
 
 interface Props {
   handleClose: () => void
+  category?: Category
 }
 
-export const CategoryForm = ({ handleClose }:Props) => { 
+export const CategoryForm = ({ handleClose, category }:Props) => { 
+  const [input, setInput] = useState<Partial<Category>>(category || {name:"", description:""}); 
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [input, setInput] = useState<Partial<Category>>({name:"", description:""}); // CategoryInput?
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setInput({ ...input, [e.target.name]: e.target.value });
   };
-  
+
   const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      setLoading(true);
-      const response = await axios.post("/api/dashboard/settings/update", {input});
-      console.log('response: ', response)
-      if (response.status === 200) { 
-        handleClose();  
+    setLoading(true);
 
-      }
-    } catch (error) {
-      setError(error as string);
-    } finally {
-      setLoading(false);
-    }
+    const request = category
+      ? axios.put(`/api/categories/${category.id}`, { input })
+      : axios.post("/api/categories", { input });
+    
+    request
+      .then((response) => {
+        if (response.status === 200) {
+          handleClose();
+        } 
+      })
+      .catch((error) => {
+        setError(error.response.data.error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });  
   }
 
   return (
@@ -48,6 +54,7 @@ export const CategoryForm = ({ handleClose }:Props) => {
           type="text" 
           name="name"
           className="form-input" 
+          defaultValue={input.name}
           onChange={(e)=>handleChange(e)}/>
       </div>
       <div className="my-2 w-96 mx-32">
@@ -59,6 +66,7 @@ export const CategoryForm = ({ handleClose }:Props) => {
           rows={4} 
           className="form-input" 
           placeholder="Category description..."
+          defaultValue={input.description}
           onChange={(e)=>handleChange(e)}
         >
         </textarea>

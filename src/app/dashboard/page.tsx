@@ -22,7 +22,7 @@ export default function Dashboard() {
         }
       })
       .catch(error => {
-        setError(error.message);
+        setError(error.response.data.error);
       })
       .finally(()=> {setLoading(false)}); 
   }, []);

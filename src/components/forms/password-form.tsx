@@ -2,8 +2,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import axios from 'axios';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { toast } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { z } from 'zod';
+import { Dialog } from '../dialog';
 import { Loading } from '../loading';
 
 const passwordSchema = z.object({
@@ -27,6 +28,7 @@ type PasswordFormData = z.infer<typeof passwordSchema>;
 
 export const PasswordForm = ({ handleClose }:Props) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const {
     register,
@@ -38,31 +40,31 @@ export const PasswordForm = ({ handleClose }:Props) => {
   });
 
   const onSubmit = async (data: PasswordFormData) => {
-    //e.preventDefault();
-    // Add your password update logic here
-    try {
-      setIsLoading(true);
-      console.log('DATA: ', data)
-      const input = {currentPassword: data.currentPassword, newPassword: data.newPassword};
-      const response = await axios.post("/api/account/update/password", input);
-      console.log('Response: ', response);
-      if (response.status === 200) {
-        console.log("Password updated");
-        toast.success('Password updated successfully');
-        reset(); 
+    setIsLoading(true);
+    const input = {currentPassword: data.currentPassword, newPassword: data.newPassword};
+    const request = axios.post("/api/account/update/password", input);
+
+    request
+      .then((response) => {
+        if (response.status === 200) {
+          toast.success('Password updated successfully');
+          reset(); 
+          setIsLoading(false);
+          handleClose();
+        } 
+      })
+      .catch((error) => {
+        setError(error.response.data.error);
+      })
+      .finally(() => {
         setIsLoading(false);
-        handleClose();
-      }
-    } catch(error) {
-      setIsLoading(false);
-      toast.error(error instanceof Error ? error.message : 'Failed to update password');
-    }
-    //console.log("Password updated");
-    //handleClose();
+      }); 
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 flex flex-col items-center">
+    <>
+      <Dialog isOpen={Boolean(error)} onClose={()=>{setError(null)}}><p>{error}</p></Dialog>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 flex flex-col items-center">
           <div className="w-80 mx-32">
               <label>Current Password</label>
               <input
@@ -109,6 +111,7 @@ export const PasswordForm = ({ handleClose }:Props) => {
             >
                {isLoading ? <span><Loading/> Updating...</span> : 'Update Password'}
           </button>
-    </form>
+      </form>
+    </>
   )
 }

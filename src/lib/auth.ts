@@ -1,6 +1,7 @@
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth";
 import { prisma } from "./prisma";
+import { formatWithTime } from "./utils/date";
 
 export async function getServerAuthSession() {
   return await getServerSession(authOptions);
@@ -50,8 +51,7 @@ export async function getCategories() {
   
   if (!session?.user?.email) return null;
 
-  const categories = await prisma.category.findMany(
-    {
+  const categories = await prisma.category.findMany({
     select: {
       id: true,
       name: true,
@@ -59,9 +59,13 @@ export async function getCategories() {
       image: true,
       createdAt: true,
       updatedAt: true 
-    }
-  }
-);
+    }});
 
-  return categories;
+    const formattedCategories = categories.map((category) => ({
+      ...category,
+      createdAt: formatWithTime(category.createdAt),
+      updatedAt: formatWithTime(category.updatedAt),
+    }));
+    
+    return formattedCategories;
 }

@@ -6,6 +6,7 @@ import { PasswordForm } from "@/components/forms/password-form";
 import { UserForm } from "@/components/forms/user-form";
 import { Loading } from "@/components/loading";
 import { formatFriendlyDate, formatWithTime } from "@/lib/utils/date";
+import { User } from "@/types/types";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -14,12 +15,12 @@ import { IoSettingsSharp } from "react-icons/io5";
 import { MdDelete, MdVpnKey } from "react-icons/md";
 
 export default function Account() {
-  const [me, setMe] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [isChangingPsw, setIsChangingPsw] = useState(false);
-  const [error, setError] = useState("");
+  const [me, setMe] = useState<User | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [isUpdating, setIsUpdating] = useState<boolean>(false);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [isChangingPsw, setIsChangingPsw] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   
   useEffect(() => {
@@ -40,15 +41,21 @@ export default function Account() {
   }
 
   const handleConfirm = async () => {
-    try {
-      const res = await axios.post('/api/account/delete');
-      if (res.status === 200) {
-        router.push('/');
-      }
+    setLoading(true);
+    const request = axios.post('/api/account/delete');
 
-    } catch (error) {
-      console.error(error);
-    }
+    request
+      .then((response) => {
+        if (response.status === 200) {
+          router.push('/');
+        } 
+      })
+      .catch((error) => {
+        setError(error.response.data.error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });  
 
     setIsDeleting(false);
   }
@@ -110,9 +117,8 @@ export default function Account() {
           </button>
         </div>
       </> : 
-      <>
-        <div>error: </div>
-      </>}
+        <Dialog isOpen={Boolean(error)} onClose={()=>{setError(null)}}><p>{error}</p></Dialog>
+      }
       <Dialog 
         isOpen={isUpdating} 
         onClose={() => setIsUpdating(false)}
@@ -129,8 +135,9 @@ export default function Account() {
         isOpen={isDeleting} 
         onClose={() => setIsDeleting(false)}
       >
-        {/* <PasswordForm handleClose={() => handleClose()}/> */}
-        <Alert onConfirm={()=>handleConfirm()} type="warning" message="Are you sure you want to delete your account?  All data will be deleted."/>
+        <Alert 
+          onConfirm={()=>handleConfirm()} 
+          type="warning" message="Are you sure you want to delete your account?  All data will be deleted."/>
       </Dialog>
     </div>
   );
