@@ -20,6 +20,7 @@ export const AdminDashboard = ({ me }:Props) => {
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [deleteCategoryId, setDeleteCategoryId] = useState<string | null>(null);
   const [category, setCategory] = useState<Category | undefined>(undefined);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
   const columnLabels: Record<string, string> = {
     name: "Category name",
@@ -82,7 +83,37 @@ export const AdminDashboard = ({ me }:Props) => {
       });  
     }
   }
-    
+  const handleBulkDelete = async () => {
+    setIsUpdating(true);
+    setLoading(true);
+    const request = axios.post("/api/categories/bulk-delete", { ids: selectedCategories });
+
+    request
+      .then((response) => {
+        if (response.status === 200) {
+          setSelectedCategories([]);
+          setIsUpdating(false);
+        } 
+      })
+      .catch((error) => {
+        setError(error.response.data.error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });  
+  }; 
+
+  const handleSelectAll = () => {
+    setSelectedCategories(selectedCategories.length === data.length ? [] : data.map((row) => row.id));
+  };
+
+  const handleCheckboxChange = (categoryId: string) => {
+    setSelectedCategories((prev) =>
+      prev.includes(categoryId)
+        ? prev.filter((id) => id !== categoryId)
+        : [...prev, categoryId]
+    );
+  };
 
   return (
     <>
@@ -105,6 +136,10 @@ export const AdminDashboard = ({ me }:Props) => {
                   rowClick={()=>{}} 
                   onDeleteCategory={handleDeleteCategory}
                   onEditCategory={handleEditCategory}
+                  onBulkDelete={handleBulkDelete}
+                  onSelectAll={handleSelectAll}
+                  onCheckboxChange={handleCheckboxChange}
+                  selectedCategories={selectedCategories}
                   />}
             </div>
             {isUpdating && 

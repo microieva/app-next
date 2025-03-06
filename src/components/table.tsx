@@ -11,9 +11,24 @@ interface AppTableProps {
   rowClick?: (row: Record<string, any>) => void; 
   onDeleteCategory?: (id: string) => void;
   onEditCategory?: (id: string) => void;
+  onBulkDelete?: (ids: string[]) => void;
+  onSelectAll: () => void;
+  onCheckboxChange: (id: string) => void;
+  selectedCategories: string[];
 }
 
-export const AppTable = ({ columns, data, rowClick, onDeleteCategory, onEditCategory }: AppTableProps)=> {
+export const AppTable = ({ 
+    columns, 
+    data, 
+    selectedCategories,
+    rowClick, 
+    onDeleteCategory, 
+    onEditCategory,
+    onBulkDelete,
+    onSelectAll,
+    onCheckboxChange
+     }: AppTableProps)=> {
+  
   const handleDelete = (id: string) => {
     if (onDeleteCategory) {
       onDeleteCategory(id);
@@ -25,13 +40,28 @@ export const AppTable = ({ columns, data, rowClick, onDeleteCategory, onEditCate
       onEditCategory(id);
     }
   };
+
+  const handleBulkDelete = () => {
+    if (onBulkDelete) {
+      onBulkDelete(selectedCategories);
+    }
+  };
   
   return (
       <div>
+        <div className="flex gap-2 mb-4">
+          <button 
+            style={{visibility: selectedCategories.length === 0 ? "hidden" : "visible"}}
+            onClick={handleBulkDelete} 
+            disabled={selectedCategories.length === 0}
+            type="button" 
+            className="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-6 py-1.5 text-center me-2 mb-2 dark:border-gray-600 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-800">Delete</button>
+        </div>
+
         <Table hoverable>
           <Table.Head>
             <Table.HeadCell className="p-4 table-header bg-gray-50 dark:bg-[#101116] border-b dark:border-[darkgray]">
-              <Checkbox />
+              <Checkbox  onChange={onSelectAll} checked={selectedCategories.length === data.length && data.length > 0}/>
             </Table.HeadCell>
             {columns.map((col) => (
               <Table.HeadCell key={col.key} className="p-4 table-header bg-gray-50 dark:bg-[#101116] border-b dark:border-[darkgray]">{col.label}</Table.HeadCell>
@@ -51,7 +81,7 @@ export const AppTable = ({ columns, data, rowClick, onDeleteCategory, onEditCate
                 onClick={() => rowClick && rowClick(row)}
               >
                 <Table.Cell className="p-4">
-                  <Checkbox />
+                  <Checkbox onChange={() => onCheckboxChange(row.id)} checked={selectedCategories.includes(row.id)}/>
                 </Table.Cell>
                 {columns.map((col) => (
                   <Table.Cell 
