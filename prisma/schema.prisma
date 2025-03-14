@@ -14,7 +14,7 @@ model User {
   firstName String
   lastName  String
   password  String?
-  roleId String
+  roleId    String
   role Role @relation(fields: [roleId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime? @updatedAt()
@@ -41,6 +41,8 @@ model Plan {
   id        String  @id @default(uuid())
   createdAt DateTime @default(now())
   updatedAt DateTime? @updatedAt()
+  title String
+  description String
   start DateTime 
   end DateTime
   categoryId String
@@ -57,6 +59,9 @@ model Task {
   updatedAt DateTime? @updatedAt()
   plan Plan  @relation(fields:[planId], references: [id])
   planId String
+  description String
+  name String
+  date DateTime
 }
 
 model Goal {
@@ -65,4 +70,6 @@ model Goal {
   updatedAt DateTime? @updatedAt()
   plan Plan @relation(fields:[planId], references: [id])
   planId String
+  description String
+  name String
 }

@@ -69,3 +69,32 @@ export async function getCategories() {
     
     return formattedCategories;
 }
+export async function getPlans() {
+  const session = await getServerAuthSession();
+  
+  if (!session?.user?.email) return null;
+
+  const plans = await prisma.plan.findMany({
+    where: {userId: session.user.id},
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      //image: true, // This should now work without errors
+      createdAt: true,
+      updatedAt: true,
+      start: true,
+      end: true,
+      goals: true, 
+      category: true, 
+      tasks: true, 
+    }});
+
+    const formattedPlans = plans.map((plan) => ({
+      ...plan,
+      createdAt: formatWithTime(plan.createdAt),
+      updatedAt: formatWithTime(plan.updatedAt),
+    }));
+    
+    return formattedPlans;
+}

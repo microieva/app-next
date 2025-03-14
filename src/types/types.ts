@@ -18,6 +18,11 @@ export interface Plan {
   description: string;
   createdAt: string;
   updatedAt: string;
+  start: string;
+  end: string
+  category: Category | null;
+  tasks: Task[];
+  gials: Goal[];
 }
 
 export interface Role {
@@ -38,4 +43,21 @@ export interface User {
   updatedAt: string;
   lastLogout: string;
   plans: Plan[];
+}
+
+export interface Goal {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  description: string;
+  name: string;
+  plan: Plan;
+}
+export interface Task {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  description: string;
+  name: string;
+  plan: Plan;
 }

@@ -1,10 +1,10 @@
 'use client'
 
 import { Avatar, Dropdown } from "flowbite-react";
-import { getSession, signOut, useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Dialog } from "./dialog";
 import { LoginForm } from "./forms/login-form";
 import { Loading } from "./loading";
@@ -12,9 +12,9 @@ import { LoginOptions } from "./login-options";
 import ThemeToggle from "./theme-toggle";
 
 export const Header = () => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState("");
+    const [isOpen, setIsOpen] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
     const { data: session } = useSession();
     const pathName = usePathname();
     let initials:string = "";
@@ -22,14 +22,9 @@ export const Header = () => {
     if (session && session.user.name) {
         initials = session.user.name
             .split(" ")  
-            .map((word) => word.charAt(0).toUpperCase()) 
+            .map((word: string) => word.charAt(0).toUpperCase()) 
             .join("");  
-
     }
-    useEffect(() => {
-        getSession();
-    }, []);
-
     const navItems = [
         { href: "/dashboard", label: "Dashboard" },
         { href: "/calendar", label: "Calendar" },
@@ -42,21 +37,25 @@ export const Header = () => {
         try {
             await fetch("/api/auth/logout", { method: "POST" });
             await signOut({ callbackUrl: "/" });
-        } catch (error) {
-            console.error("Logout failed:", error);
+        } catch (error: any) {
+            setError(error.message);
         }
     }
     
     return (
         <>
-            <header className={session ? "header-auth" : "header-default"}>
+            <header >
                 {!session ? 
-                <>
+                <div className="header-default">
                     <h1>Life Planner</h1>
                     <button onClick={() => setIsOpen(true)}>Log In</button>
-                </> 
+                </div> 
                 :
-                <>
+                <div className="header-auth">
+                    <div 
+                        style={{visibility: session?.user.role === "admin" ? "hidden" : "visible"}} 
+                        className="header-navbar"
+                    >
                      {navItems.map(({ href, label }) => (
                         <Link
                             key={href}
@@ -68,6 +67,8 @@ export const Header = () => {
                             {label}
                         </Link>
                     ))}
+                    </div>
+
                     <div className="button-logout">
                         <Dropdown
                             label={<Avatar alt="User settings" placeholderInitials={initials as string}  rounded />}
@@ -82,22 +83,23 @@ export const Header = () => {
                                 <ThemeToggle></ThemeToggle>
                             </div>
                             <Dropdown.Divider/>
+                            {session.user.role === 'admin' && <Dropdown.Item><Link href="/dashboard">Dashboard</Link></Dropdown.Item>}
                             <Dropdown.Item><Link href="/account">Account</Link></Dropdown.Item>
                             <Dropdown.Divider />
                             <Dropdown.Item  onClick={() => logOut()}>Sign out</Dropdown.Item>
                         </Dropdown>
 
                     </div>
-                </>
+                </div>
                 }
             </header>
 
-            <Dialog isOpen={isOpen} onClose={() => setIsOpen(false)}>
+            <Dialog isOpen={isOpen && !isLoading} onClose={() => setIsOpen(false)}>
                 <LoginOptions handleClose={() => setIsOpen(false)}/>
-                <LoginForm handleClose={() => setIsOpen(false)} />
+                <LoginForm handleClose={() => setIsOpen(false)} onLoading={(bool) => setIsLoading(bool)}/>
             </Dialog>
-
-            {isLoading ? <Loading /> : null}
+            {isLoading && <Loading /> }
+            <Dialog isOpen={Boolean(error)} onClose={()=>{setError(null)}}><p>{error}</p></Dialog>
         </>
     )
 }

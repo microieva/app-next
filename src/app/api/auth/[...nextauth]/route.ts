@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
+
 import bcrypt from "bcryptjs";
 import NextAuth, { NextAuthOptions } from "next-auth";
 //import Auth0Provider from "next-auth/providers/auth0"
@@ -11,8 +12,19 @@ import GoogleProvider from "next-auth/providers/google";
 
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options
+
+const adapter = PrismaAdapter(prisma);
+// adapter.getUser = async (id) => {
+//   const user = await prisma.user.findUnique({
+//     where: { id },
+//     include: { role: true }, 
+//   });
+//   //return user ? { ...user, emailVerified: user.emailVerified ?? null } : null;
+//   return user;
+// };
+
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  adapter,
   // https://next-auth.js.org/configuration/providers
   providers: [
     // EmailProvider({
@@ -48,7 +60,8 @@ export const authOptions: NextAuthOptions = {
         async authorize(credentials: any) {
           const user = await prisma.user.findUnique({
             where: { email: credentials.email },
-          });
+            include: { role: true },
+           });
         
           if (!user) {
             console.log("User not found");
@@ -65,9 +78,7 @@ export const authOptions: NextAuthOptions = {
             console.log("Invalid password");
             return null; 
           }
-        
           return user;
-          
         }
     }),
     FacebookProvider({
@@ -188,6 +199,9 @@ export const authOptions: NextAuthOptions = {
 
     async jwt({ token, user, trigger, session }) {
       if (user) {
+        if (user.role) {
+          token.role = user.role.name;
+        }
         token.id = user.id;
         token.name = user.firstName +" "+ user.lastName;
         token.email = user.email;
@@ -195,10 +209,14 @@ export const authOptions: NextAuthOptions = {
       if (trigger === "update") {
         token.email = session.email;
         token.name = session.name;
-    }
+      }
       return token;
     },
     async session({ session, token }) {
+      if (token.role) {
+        session.user.role = token.role;
+      }
+
       session.user.id = token.id as string;
       session.user.name = token.name as string;
       session.user.email = token.email as string;

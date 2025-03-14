@@ -1,5 +1,7 @@
+import { User } from "@/types/types"
+
 interface Props {
-  me:any
+  me: User
 }
 
 export const UserDashboard = ({me}:Props) => { 

@@ -52,7 +52,7 @@ body {
     @apply block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400;
   }
   header {
-    @apply text-primary;
+    @apply text-primary flex flex-row;
   }
   button:not(.header-default button) {
     @apply font-bold text-gray-500 hover:text-white;
@@ -78,7 +78,7 @@ body {
     @apply bg-[#0f0d0d] bg-opacity-30 backdrop-blur-md p-2 rounded-lg;
   }
   .button-logout {
-    @apply absolute top-2 -right-96 p-1 rounded-full border-gray-700 px-4;
+    @apply p-1 rounded-full border-gray-700 px-4;
   }
   .button-login-option {
     @apply w-full flex flex-row justify-center my-4 h-14 border border-gray-700 rounded-md py-4 px-8 bg-transparent hover:bg-[#1c212b];
@@ -90,10 +90,13 @@ body {
     @apply flex space-x-8 w-full items-center h-full hover:text-white rounded-md text-2xl font-bold dark:text-[darkgrey] text-gray-900;
   } 
   .header-auth {
-    @apply glass-effect w-1/2 m-6 mx-auto rounded-full border border-gray-700/50 flex justify-between;
-    .header-nav-button {
-      @apply text-white rounded-full border border-gray-700 bg-[#162030cc];
-    }
+    @apply w-full my-6 mx-auto flex flex-row-reverse items-center justify-between;
+  }
+  .header-navbar {
+    @apply w-[40rem] flex justify-between rounded-full border border-gray-700/50 glass-effect absolute left-1/2 transform -translate-x-1/2;
+  }
+  .header-nav-button {
+    @apply text-white rounded-full border border-gray-700 bg-[#162030cc];
   }
   .header-default {
     @apply w-4/5 m-6 mx-auto flex justify-between border-b border-white/50 py-6;

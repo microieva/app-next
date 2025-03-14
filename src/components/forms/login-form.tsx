@@ -3,14 +3,13 @@
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Loading } from "../loading";
 
 interface LoginFormProps {
     handleClose: () => void;
+    onLoading: (bool:boolean)=> void;
 }
 
-export const LoginForm = ({ handleClose }: LoginFormProps)  => {
-    const [isLoading, setIsLoading] = useState<boolean>(false);
+export const LoginForm = ({ handleClose, onLoading }: LoginFormProps)  => {
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [error, setError] = useState<string | null>(null);
@@ -18,8 +17,7 @@ export const LoginForm = ({ handleClose }: LoginFormProps)  => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setIsLoading(true); 
-
+        onLoading(true);
         if (password && email) {
           try {
             const res = await signIn("credentials", {
@@ -38,20 +36,15 @@ export const LoginForm = ({ handleClose }: LoginFormProps)  => {
           } catch (error) {
             console.error("An unexpected error occurred:", error);
           } finally {
-            setIsLoading(false); 
+            onLoading(false);
           }
 
         } else {
           setError("Please fill in all fields");
-          setIsLoading(false);
+          onLoading(false);
         }
     };
 
-    if (isLoading) {
-      return (
-        <Loading />
-      )
-    }
       return (
           <form className="space-y-4 w-2/3" onSubmit={handleSubmit} >
               <input

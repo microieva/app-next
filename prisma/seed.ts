@@ -10,7 +10,18 @@ async function main() {
       password: hashedPassword,
       firstName: "user",
       lastName: "user",
-      roleId: "3c9c6c51-7683-4f49-8ac5-6f5e150472d9"
+      roleId: "b4d9b335-6b7d-419e-aa50-061b80eca383"
+    },
+  });
+
+  console.log("✅ User created");
+  await prisma.user.create({
+    data: {
+      email: "admin@email.com",
+      password: hashedPassword,
+      firstName: "admin",
+      lastName: "admin",
+      roleId: "43fb73f4-314a-4d85-83b5-e18386159e7b"
     },
   });
 
